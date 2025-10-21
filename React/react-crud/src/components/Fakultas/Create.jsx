@@ -1,6 +1,7 @@
 // src/components/Fakultas/Create.jsx
 import React, { useState } from "react";
 import axios from "axios";
+import Swal from "sweetalert2";
 
 export default function CreateFakultas() {
   // Inisialisasi state untuk menyimpan nama fakultas
@@ -18,19 +19,32 @@ export default function CreateFakultas() {
 
     // Validasi input: jika namaFakultas kosong, set pesan error
     if (namaFakultas.trim() == "") {
+      Swal.fire({
+        title: "Error!",
+        text: "Nama fakultas tidak bisa kosong",
+        icon: "error",
+      });
       setError("Nama Fakultas is required"); // Set pesan error jika input kosong
       return; // Stop eksekusi fungsi jika input tidak valid
     }
 
     try {
       // Melakukan HTTP Post request untuk menyimpan data fakultas
-      const response = await axios.post(
-        "https://project-apiif-3-b.vercel.app/api/api/fakultas", // Endpoint tujuan API
-        {
-          nama: namaFakultas, // Data yang dikirim berupa objek JSON dengan properti nama
-        }
-      );
-
+      const response = await axios
+        .post(
+          "https://project-apiif-3-b.vercel.app/api/api/fakultas", // Endpoint tujuan API
+          {
+            nama: namaFakultas, // Data yang dikirim berupa objek JSON dengan properti nama
+          }
+        )
+        .catch((error) => {
+          Swal.fire({
+            title: "Error!",
+            text: "Nama fakultas tidak bisa sama",
+            icon: "error",
+          });
+          setError(error.response.data.message);
+        });
       // Jika response HTTP status 201 (Created), berhasil
       if (response.status === 201) {
         // Tampilkan pesan sukses jika fakultaas berhasil dibuat
@@ -41,7 +55,7 @@ export default function CreateFakultas() {
         setError("Failed to create fakultas");
       }
     } catch (error) {
-      setError("An error occured while creating fakultas");
+      // setError("An error occured while creating fakultas");
     }
   };
 

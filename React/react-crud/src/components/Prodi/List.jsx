@@ -74,9 +74,14 @@ export default function List() {
               <td>
                 <button
                   onClick={() => handleDelete(data.id, data.nama)}
-                  className="btn btn-danger btn-sm">
+                  className="btn btn-danger btn-sm me-2">
                   Hapus
                 </button>
+                <NavLink
+                  to={`/prodi/edit/${data.id}`}
+                  className="btn btn-warning btn-sm">
+                  Ubah
+                </NavLink>
               </td>
             </tr>
           ))}
