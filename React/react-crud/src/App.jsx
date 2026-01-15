@@ -1,10 +1,13 @@
-import React, { Suspense } from "react";
+import React, { Suspense, useState } from "react";
 import {
   BrowserRouter as Router,
   Route,
   Routes,
   NavLink,
 } from "react-router-dom";
+import ProtectedRoute from "./components/ProtectedRoute";
+import Logout from "./components/Logout";
+import Loader from "./components/Loader";
 
 const Home = React.lazy(() => import("./components/Home"));
 const FakultasList = React.lazy(() => import("./components/Fakultas/List"));
@@ -12,8 +15,11 @@ const FakultasCreate = React.lazy(() => import("./components/Fakultas/Create"));
 const FakultasEdit = React.lazy(() => import("./components/Fakultas/Edit"));
 const ProdiList = React.lazy(() => import("./components/Prodi/List"));
 const ProdiCreate = React.lazy(() => import("./components/Prodi/Create"));
+const ProdiEdit = React.lazy(() => import("./components/Prodi/Edit"));
+const Login = React.lazy(() => import("./components/Login"));
 
 function App() {
+  const [token, setToken] = useState(localStorage.getItem("authToken"));
   return (
     <Router>
       {/* Navbar */}
@@ -49,26 +55,58 @@ function App() {
                   Prodi
                 </NavLink>
               </li>
+              <li>
+                {token ? (
+                  <NavLink className="nav-link" to="/logout">
+                    Logout
+                  </NavLink>
+                ) : (
+                  <NavLink className="nav-link" to="/login">
+                    Login
+                  </NavLink>
+                )}
+              </li>
             </ul>
           </div>
         </div>
       </nav>
 
-      <Suspense fallback={<div>Loading.....</div>}>
+      <Suspense fallback={<Loader></Loader>}>
         <Routes>
           <Route path="/" element={<Home></Home>}></Route>
+          <Route path="/login" element={<Login setToken={setToken} />} />
+          <Route path="/logout" element={<Logout setToken={setToken} />} />
           <Route
             path="/fakultas"
             element={<FakultasList></FakultasList>}></Route>
           <Route
             path="/fakultas/create"
-            element={<FakultasCreate></FakultasCreate>}></Route>
+            element={
+              <ProtectedRoute>
+                <FakultasCreate></FakultasCreate>
+              </ProtectedRoute>
+            }></Route>
           <Route
             path="/fakultas/edit/:id"
-            element={<FakultasEdit></FakultasEdit>}></Route>
+            element={
+              <ProtectedRoute>
+                <FakultasEdit></FakultasEdit>
+              </ProtectedRoute>
+            }></Route>
           <Route
             path="/prodi/create"
-            element={<ProdiCreate></ProdiCreate>}></Route>
+            element={
+              <ProtectedRoute>
+                <ProdiCreate></ProdiCreate>
+              </ProtectedRoute>
+            }></Route>
+          <Route
+            path="/prodi/edit/:id"
+            element={
+              <ProtectedRoute>
+                <ProdiEdit></ProdiEdit>
+              </ProtectedRoute>
+            }></Route>
           <Route path="/prodi" element={<ProdiList></ProdiList>}></Route>
         </Routes>
       </Suspense>
